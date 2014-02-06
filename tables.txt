@@ -1,0 +1,120 @@
+CREATE TABLE pca_rounds(
+round_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+created_ts INT UNSIGNED NOT NULL,
+round_type CHAR(1) NOT NULL,
+round_description VARCHAR(1000) NOT NULL,
+show_countdown TINYINT UNSIGNED NOT NULL,
+start_ts INT UNSIGNED NOT NULL,
+end_ts INT UNSIGNED NOT NULL,
+final_round TINYINT UNSIGNED NOT NULL,
+vote_limit INT UNSIGNED NOT NULL,
+winner_limit INT UNSIGNED NOT NULL,
+current_round TINYINT UNSIGNED NOT NULL
+)AUTO_INCREMENT=1001 ENGINE=InnoDB;
+
+
+
+CREATE TABLE pca_user_works(
+work_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY NOT NULL,
+round_id INT UNSIGNED NOT NULL,
+total_points INT UNSIGNED NOT NULL,
+this_round_points INT UNSIGNED NOT NULL,
+user_name VARCHAR(60) NOT NULL,
+work_description VARCHAR(1000),
+updated_ts INT UNSIGNED NOT NULL,
+thumbnail_updated_ts INT UNSIGNED NOT NULL,
+INDEX(round_id)
+)AUTO_INCREMENT=1001 ENGINE=InnoDB;
+
+
+
+CREATE TABLE pca_user_works_history(
+work_id INT UNSIGNED NOT NULL,
+round_id INT UNSIGNED NOT NULL,
+this_round_points INT UNSIGNED NOT NULL,
+created_ts INT UNSIGNED NOT NULL,
+INDEX(work_id)
+)ENGINE=InnoDB;
+
+
+
+CREATE TABLE pca_user_votes(
+work_id INT UNSIGNED NOT NULL,
+round_id INT UNSIGNED NOT NULL,
+user_id BIGINT UNSIGNED NOT NULL,
+voting_ts INT UNSIGNED NOT NULL,
+INDEX(work_id)
+)ENGINE=InnoDB;
+
+
+
+CREATE TABLE pca_judge_votes(
+work_id INT UNSIGNED NOT NULL,
+round_id INT UNSIGNED NOT NULL,
+points INT UNSIGNED NOT NULL,
+voting_ts INT UNSIGNED NOT NULL,
+INDEX(work_id)
+)ENGINE=InnoDB;
+
+
+
+Round
+Get round info
+Get next and prev round info
+Get info about final round
+Get present voting status
+Get existing winner
+ 
+Rounds Creation
+1) cannot be a final round if there is an existing final round
+2) start time should be after the end time of the previous round 
+
+
+Rounds Editing : Finished rounds
+1) No editing 
+
+Rounds Editing : Present round
+1) no change in round type if any voting has heppened
+2) start time of a present round cannot be changed if there any voting has happened
+3) end time of a present round should not be greater than the start time of the next round
+4) cannot be a final round if there is an existing final round
+4) no change in vote limit if the vote limit has already been achieved for some user work
+5) no reduction in winner limit in case the winner limit has already been achieved
+
+Rounds Editing : Upcoming rounds
+1) start time should not be greater than the end time of the previous round
+2) cannot be a final round if there is an existing final round
+
+
+
+
+
+Events
+1) round starts
+2) round ends
+3) user work goes to next round [ if permissible ]
+
+
+find the current round [and next round]
+    if any - check whether the round has ended
+        if round has ended change current round + move user works to next round
+        if round has not ended dont do anything
+    if no current round - check whether next round has started
+        if round has started change current round
+        if round has not started dont do anything
+
+
+
+With every page request 
+1) Validate for round end & start
+
+
+With every request
+1) Validate for round end & start
+2) Validate the request 
+
+
+1 2 3 4 5
+
+check current round and check its ts; if they match => , set current round; OK
+check current round and check its ts; if no match get next round; set current round; repeat until OK
